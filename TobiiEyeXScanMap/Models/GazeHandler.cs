@@ -16,12 +16,13 @@ namespace EyeTracking.Models
     public class GazeHandler : IObserver<StreamData<FixationData>>, IObserver<StreamData<GazePointData>>
     {
         public event EventHandler OnFixation;
+        public event EventHandler OnFixationEnd;
         public event EventHandler OnData;
 
-        private readonly GazePointDataStream _gazePointDataStream;
-        private readonly FixationDataStream _fixationDataStream;
+        private GazePointDataStream _gazePointDataStream;
+        private FixationDataStream _fixationDataStream;
         private readonly Host _host;
-        private WpfInteractorAgent _wpfInteractorAgent;
+        private readonly WpfInteractorAgent _wpfInteractorAgent;
 
         public GazeHandler()
         {
@@ -46,7 +47,7 @@ namespace EyeTracking.Models
             {
                 case FixationDataEventType.Begin:
                     fixationBeginTime = fixation.Data.Timestamp;
-                    Console.WriteLine("Begin fixation at X: {0}, Y: {1}", fixationPointX, fixationPointY);
+                    Console.WriteLine(@"Begin fixation at X: {0}, Y: {1}", fixationPointX, fixationPointY);
                     break;
 
                 case FixationDataEventType.Data:
@@ -54,8 +55,11 @@ namespace EyeTracking.Models
                     break;
 
                 case FixationDataEventType.End:
-                    Console.WriteLine("End fixation at X: {0}, Y: {1}", fixationPointX, fixationPointY);
-                    Console.WriteLine("Fixation duration: {0} \n",
+                    OnFixationEnd?.Invoke(this,
+                        new ReceivedDataEventArgs(new Point(fixationPointX, fixationPointY),
+                            TimeSpan.FromMilliseconds(fixation.Data.Timestamp - fixationBeginTime)));
+                    Console.WriteLine(@"End fixation at X: {0}, Y: {1}", fixationPointX, fixationPointY);
+                    Console.WriteLine(@"Fixation duration: {0} ",
                         fixationBeginTime > 0
                             ? TimeSpan.FromMilliseconds(fixation.Data.Timestamp - fixationBeginTime)
                             : TimeSpan.Zero);
@@ -87,6 +91,7 @@ namespace EyeTracking.Models
 
         public void CleanUp()
         {
+            _host.RemoveInteractorAgent(_wpfInteractorAgent);
             _wpfInteractorAgent.Dispose();
             _host.Dispose();
         }

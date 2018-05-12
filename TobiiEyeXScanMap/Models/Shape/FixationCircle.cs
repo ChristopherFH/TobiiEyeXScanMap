@@ -11,10 +11,12 @@ namespace EyeTracking.Models.Shape
         private double _height = Constants.DefauleDiameter;
         private double _width = Constants.DefauleDiameter;
 
+        public double FixationTime { get; set; }
         public Point Origin { get; set; }
 
         public FixationCircle(double x, double y, Color color, int number) : base(x, y, color)
         {
+            FixationTime = 0;
             Origin = new Point(x - Height / 2, y - Width / 2);
             X = x;
             Y = y;
@@ -53,7 +55,7 @@ namespace EyeTracking.Models.Shape
         public bool IsInRange(double x, double y)
         {
             var distance = Math.Sqrt(Math.Pow(x - X, 2) + Math.Pow(y - Y, 2));
-            return !(distance > Constants.Distance);
+            return distance < Constants.Distance;
         }
     }
 }

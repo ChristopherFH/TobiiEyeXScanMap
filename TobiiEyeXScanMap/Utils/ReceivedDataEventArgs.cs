@@ -14,13 +14,20 @@ namespace EyeTracking.Utils
             Point = point;
         }
 
-        public ReceivedDataEventArgs(Point point, double timeStamp)
+        public ReceivedDataEventArgs(Point point, TimeSpan fixationTime)
         {
             Point = point;
-            TimeStamp = timeStamp;
+            FixationTime = fixationTime;
+        }
+
+        public ReceivedDataEventArgs(Point point, double timestamp)
+        {
+            Point = point;
+            Timestamp = timestamp;
         }
 
         public Point Point { get; set; }
-        public double TimeStamp { get; set; }
+        public TimeSpan FixationTime { get; set; }
+        public double Timestamp { get; set; }
     }
 }

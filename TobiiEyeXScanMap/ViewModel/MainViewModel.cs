@@ -2,20 +2,16 @@ using GalaSoft.MvvmLight;
 using System.ComponentModel;
 using System.Windows.Input;
 using GalaSoft.MvvmLight.CommandWpf;
-using Microsoft.Win32;
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using EyeTracking.Interfaces;
 using EyeTracking.Utils;
 using EyeTracking.Models;
-using Tobii.Interaction;
-using Tobii.Interaction.Wpf;
-using System.Threading.Tasks;
-using System.Windows.Shapes;
-using Tobii.Interaction.Framework;
-using System.Threading;
-using System.Windows.Data;
 using EyeTracking.Models.Shape;
+using System.Linq;
+using System.Collections;
+using EyeTracking.Utils.Csv;
 
 namespace EyeTracking.ViewModel
 {
@@ -25,6 +21,7 @@ namespace EyeTracking.ViewModel
 
         #region Properties
 
+        public double ScanPathDistance { get; set; }
         public Point prevPoint { get; set; }
         public bool IsImageShown { get; set; }
         public bool WebBrowser { get; set; }
@@ -51,7 +48,7 @@ namespace EyeTracking.ViewModel
         private readonly IDialogManager _ioManager;
         private readonly IFileAccessManager _fileAccessManager;
         private System.Drawing.Image _image;
-        private GazeHandler _gazeHandler; 
+        private GazeHandler _gazeHandler;
         #endregion
 
         public MainViewModel()
@@ -59,20 +56,24 @@ namespace EyeTracking.ViewModel
             Shapes = new ObservableCollection<FixationCircle>();
             Lines = new ObservableCollection<ConnectionLine>();
 
+            ScanPathDistance = 0;
+
+
             _ioManager = new DialogManager();
             _fileAccessManager = new FileAccessManager();
-            
+
             OpenFileDialogCommand = new RelayCommand(ImportFile);
             OpenWebBrowserCommand = new RelayCommand(OpenWebBrowser);
 
             _gazeHandler = new GazeHandler();
-            _gazeHandler.OnFixation += OnFixation; 
-            _gazeHandler.OnData += OnData; 
+            _gazeHandler.OnFixation += OnFixation;
+            _gazeHandler.OnData += OnData;
+            _gazeHandler.OnFixationEnd += OnFixationEnd;
         }
 
         private void OpenWebBrowser()
         {
-            WebBrowser = true; 
+            WebBrowser = true;
         }
 
         private async void ImportFile()
@@ -95,6 +96,20 @@ namespace EyeTracking.ViewModel
             return null;
         }
 
+        public void OnFixationEnd(object sender, EventArgs e)
+        {
+            if (Image != null || WebBrowser)
+            {
+                double x = ((ReceivedDataEventArgs)e).Point.X;
+                double y = ((ReceivedDataEventArgs)e).Point.Y;
+                FixationCircle fixationCircle = GetShapeAtPos(x, y);
+                if (fixationCircle != null)
+                {
+                    fixationCircle.FixationTime += ((ReceivedDataEventArgs)e).FixationTime.Milliseconds;
+                }
+            }
+        }
+
         public void OnFixation(object sender, EventArgs e)
         {
             if (Image != null || WebBrowser)
@@ -104,7 +119,7 @@ namespace EyeTracking.ViewModel
                 FixationCircle fixationCircle = GetShapeAtPos(x, y);
                 if (fixationCircle != null)
                 {
-                   fixationCircle.OnFixation();
+                    fixationCircle.OnFixation();
                     return;
                 }
                 System.Windows.Application.Current.Dispatcher.Invoke(delegate
@@ -113,7 +128,9 @@ namespace EyeTracking.ViewModel
                     var circle = new FixationCircle(x, y, color, Shapes.Count);
                     if (Shapes.Count > 0)
                     {
-                        Lines.Add(new ConnectionLine(prevPoint, x, y, color));
+                        var line = new ConnectionLine(prevPoint, x, y, color);
+                        Lines.Add(line);
+                        ScanPathDistance += line.Distance;
                     }
                     Shapes.Add(circle);
                     prevPoint = new Point(x, y);
@@ -125,7 +142,7 @@ namespace EyeTracking.ViewModel
         {
             double x = ((ReceivedDataEventArgs)e).Point.X;
             double y = ((ReceivedDataEventArgs)e).Point.Y;
-            double ts = ((ReceivedDataEventArgs) e).TimeStamp; 
+            double ts = ((ReceivedDataEventArgs)e).FixationTime.Seconds;
             Console.WriteLine("Timestamp: {0}\t X: {1} Y:{2}", ts, x, y);
         }
 
@@ -136,10 +153,29 @@ namespace EyeTracking.ViewModel
                 return new GalaSoft.MvvmLight.Command.RelayCommand<CancelEventArgs>(
                     (args) =>
                     {
-                        _gazeHandler.CleanUp();
+                        SaveMetrics();
+                        try
+                        {
+                            _gazeHandler.CleanUp();
+                        }
+                        catch (Exception)
+                        {
+                            // Object leakage even with disposal =(
+                        }
                         ViewModelLocator.Cleanup();
                     });
             }
+        }
+
+        private void SaveMetrics()
+        {
+            var metrics = new Metrics
+            {
+                Distance = ScanPathDistance,
+                FixationNumbers = Shapes.Count
+            };
+            CsvWriter.WriteCollectionToCsv(Shapes.ToList(), typeof(FixationCircle), @"Fixations.csv", new FixationClassMap());
+            CsvWriter.WriteObjectToCsv(metrics, typeof(Metrics), @"Metrics.csv");
         }
     }
 }

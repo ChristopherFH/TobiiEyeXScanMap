@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -12,6 +13,7 @@ namespace EyeTracking.Models.Shape
     {
         private double _x2;
         private double _y2;
+        public double Distance { get; set; }
 
         public double X2
         {
@@ -37,18 +39,26 @@ namespace EyeTracking.Models.Shape
         {
             X2 = x2;
             Y2 = y2;
+            CalculateDistance();
         }
 
         public ConnectionLine(Point p, double x2, double y2, Color color) : base(p.X, p.Y, color)
         {
             X2 = x2;
             Y2 = y2;
+            CalculateDistance();
         }
 
         public ConnectionLine(Point p, Point p1, Color color) : base(p.X, p.Y, color)
         {
             X2 = p1.X;
             Y2 = p1.Y;
+            CalculateDistance();
+        }
+
+        private void CalculateDistance()
+        {
+            Distance = Math.Sqrt(Math.Pow(X - X2, 2) + Math.Pow(Y - Y2, 2));
         }
     }
 }
