@@ -106,6 +106,7 @@
     <Compile Include="Models\Shape\Point.cs" />
     <Compile Include="Properties\Annotations.cs" />
     <Compile Include="Utils\ConsoleManager.cs" />
+    <Compile Include="Utils\Csv\ConnectionLineClassMap.cs" />
     <Compile Include="Utils\Csv\CsvWriter.cs" />
     <Compile Include="Utils\Csv\FixationClassMap.cs" />
     <Compile Include="Utils\DialogManager.cs" />

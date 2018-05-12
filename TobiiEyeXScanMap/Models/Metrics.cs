@@ -9,6 +9,6 @@ namespace EyeTracking.Models
     public class Metrics
     {
         public double Distance { get; set; }
-        public double FixationNumbers { get; set; }
+        public double Number { get; set; }
     }
 }

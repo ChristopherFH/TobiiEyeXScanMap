@@ -20,6 +20,10 @@ namespace EyeTracking.Utils.Csv
             Map(m => m.Width).Index(5).Name("Width");
             Map(m => m.Origin.X).Index(6).Name("Origin X");
             Map(m => m.Origin.Y).Index(7).Name("Origin Y");
+            Map(m => m.Color.A).Index(8).Name("Color A");
+            Map(m => m.Color.R).Index(9).Name("Color R");
+            Map(m => m.Color.G).Index(10).Name("Color G");
+            Map(m => m.Color.B).Index(11).Name("Color B");
 
             Map(m => m.Color.ScA).Ignore();
             Map(m => m.Color.ScB).Ignore();

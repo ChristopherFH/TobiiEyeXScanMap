@@ -54,7 +54,7 @@ namespace EyeTracking.Utils.Csv
                 csvHelper.NextRecord();
 
                 csvHelper.WriteField(metrics.Distance);
-                csvHelper.WriteField(metrics.FixationNumbers);
+                csvHelper.WriteField(metrics.Number);
                 sw.Flush();
                 csvHelper.Flush();
             }

@@ -26,7 +26,7 @@ namespace EyeTracking.ViewModel
         public bool IsImageShown { get; set; }
         public bool WebBrowser { get; set; }
         public ObservableCollection<FixationCircle> Shapes { get; set; }
-        public ObservableCollection<ConnectionLine> Lines { get; set; }
+        public ObservableCollection<ConnectionLine> Saccades { get; set; }
 
         public System.Drawing.Image Image
         {
@@ -54,7 +54,7 @@ namespace EyeTracking.ViewModel
         public MainViewModel()
         {
             Shapes = new ObservableCollection<FixationCircle>();
-            Lines = new ObservableCollection<ConnectionLine>();
+            Saccades = new ObservableCollection<ConnectionLine>();
 
             ScanPathDistance = 0;
 
@@ -129,7 +129,7 @@ namespace EyeTracking.ViewModel
                     if (Shapes.Count > 0)
                     {
                         var line = new ConnectionLine(prevPoint, x, y, color);
-                        Lines.Add(line);
+                        Saccades.Add(line);
                         ScanPathDistance += line.Distance;
                     }
                     Shapes.Add(circle);
@@ -153,14 +153,14 @@ namespace EyeTracking.ViewModel
                 return new GalaSoft.MvvmLight.Command.RelayCommand<CancelEventArgs>(
                     (args) =>
                     {
-                        SaveMetrics();
                         try
                         {
+                            SaveMetrics();
                             _gazeHandler.CleanUp();
                         }
                         catch (Exception)
                         {
-                            // Object leakage even with disposal =(
+                            // Object leakage in tobii framework
                         }
                         ViewModelLocator.Cleanup();
                     });
@@ -172,10 +172,11 @@ namespace EyeTracking.ViewModel
             var metrics = new Metrics
             {
                 Distance = ScanPathDistance,
-                FixationNumbers = Shapes.Count
+                Number = Shapes.Count
             };
             CsvWriter.WriteCollectionToCsv(Shapes.ToList(), typeof(FixationCircle), @"Fixations.csv", new FixationClassMap());
             CsvWriter.WriteObjectToCsv(metrics, typeof(Metrics), @"Metrics.csv");
+            CsvWriter.WriteCollectionToCsv(Saccades.ToList(), typeof(ConnectionLine), @"Saccades.csv", new ConnectionLineClassMap());
         }
     }
 }
