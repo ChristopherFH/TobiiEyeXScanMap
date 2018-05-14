@@ -93,7 +93,7 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            <ItemsControl ItemsSource="{Binding Lines}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ItemsControl ItemsSource="{Binding Saccades}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <Canvas />
