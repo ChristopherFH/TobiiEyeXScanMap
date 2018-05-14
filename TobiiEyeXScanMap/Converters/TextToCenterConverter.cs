@@ -14,7 +14,7 @@ namespace EyeTracking.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             double temp = (double)value;
-            return temp - 11; 
+            return temp - 6; 
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
