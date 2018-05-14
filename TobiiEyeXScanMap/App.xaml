@@ -15,6 +15,7 @@
         <converters:BoolToVisibilityInvertedConverter x:Key="BoolToVisibilityInvertedConverter" />
         <converters:ImageToImageSourceConverter x:Key="ImageConverter" />
         <converters:ColorToSolidColorBrushConverter x:Key="ColorConverter" />
+        <converters:TextToCenterConverter x:Key="TextToCenterConverter" />
     </Application.Resources>
 
 </Application>

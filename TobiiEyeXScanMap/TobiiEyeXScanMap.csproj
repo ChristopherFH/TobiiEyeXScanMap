@@ -96,6 +96,7 @@
     <Compile Include="Converters\BoolToVisibilityInvertedConverter.cs" />
     <Compile Include="Converters\ColorToSolidColorBrushConverter.cs" />
     <Compile Include="Converters\ImageToImageSourceConverter.cs" />
+    <Compile Include="Converters\TextToCenterConverter.cs" />
     <Compile Include="Interfaces\FileAccessManager.cs" />
     <Compile Include="Interfaces\IRange.cs" />
     <Compile Include="Models\Metrics.cs" />

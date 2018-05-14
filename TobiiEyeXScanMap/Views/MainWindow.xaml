@@ -86,7 +86,9 @@
                             </Ellipse>
                             <TextBlock Text="{Binding Number}" FontSize="22" FontWeight="Bold" Foreground="White">
                                 <TextBlock.RenderTransform>
-                                    <TranslateTransform X="{Binding X}" Y="{Binding Y}" />
+                                    <TranslateTransform
+                                        X="{Binding X, Converter={StaticResource TextToCenterConverter}}"
+                                        Y="{Binding Y,  Converter={StaticResource TextToCenterConverter}}" />
                                 </TextBlock.RenderTransform>
                             </TextBlock>
                         </Grid>
